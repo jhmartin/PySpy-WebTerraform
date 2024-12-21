@@ -55,21 +55,21 @@ resource "aws_api_gateway_deployment" "deployment" {
   ]
 
   rest_api_id = aws_api_gateway_rest_api.pyspy.id
-  stage_name = "dev" # replace with aws_api_gateway_stage
+  stage_name = "stg" # replace with aws_api_gateway_stage
 }
 
 data "archive_file" "lambda_package" {
   type = "zip"
-  source_file = "index.js"
-  output_path = "index.zip"
+  source_file = "pyspy.py"
+  output_path = "pyspy.zip"
 }
 
 resource "aws_lambda_function" "html_lambda" {
-  filename = "index.zip"
+  filename = "pyspy.zip"
   function_name = "myLambdaFunction"
   role = aws_iam_role.lambda_role.arn
-  handler = "index.handler"
-  runtime = "nodejs18.x"
+  handler = "pyspy.lambda_handler"
+  runtime = "python3.13"
   source_code_hash = data.archive_file.lambda_package.output_base64sha256
 }
 
