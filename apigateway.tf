@@ -22,8 +22,8 @@ resource "aws_api_gateway_method" "proxy" {
 }
 
 resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id = aws_api_gateway_rest_api.my_api.id
-  resource_id = aws_api_gateway_resource.root.id
+  rest_api_id = aws_api_gateway_rest_api.pyspy.id
+  resource_id = aws_api_gateway_resource.pyspy.id
   http_method = aws_api_gateway_method.proxy.http_method
   integration_http_method = "GET"
   type = "AWS"
@@ -101,5 +101,5 @@ resource "aws_lambda_permission" "apigw_lambda" {
   function_name = aws_lambda_function.html_lambda.function_name
   principal = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_api_gateway_rest_api.my_api.execution_arn}/*/*/*"
+  source_arn = "${aws_api_gateway_rest_api.pyspy.execution_arn}/*/*/*"
 }
