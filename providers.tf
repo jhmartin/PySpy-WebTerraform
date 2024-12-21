@@ -10,11 +10,5 @@ terraform {
 
 provider "aws" {
   shared_config_files = [var.tfc_aws_dynamic_credentials.default.shared_config_file]
-}
-
-provider "aws" {
-  alias               = "ALIAS1"
-  shared_config_files = [var.tfc_aws_dynamic_credentials.aliases["ALIAS2"].shared_config_file]
   region              = "us-west-2"
 }
-
