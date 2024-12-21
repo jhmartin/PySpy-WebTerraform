@@ -17,7 +17,7 @@ resource "aws_api_gateway_resource" "pyspy" {
 resource "aws_api_gateway_method" "proxy" {
   rest_api_id   = aws_api_gateway_rest_api.pyspy.id
   resource_id   = aws_api_gateway_resource.pyspy.id
-  http_method   = "POST"
+  http_method   = "GET"
   authorization = "NONE"
 }
 
