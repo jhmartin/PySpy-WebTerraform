@@ -28,9 +28,6 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.html_lambda.invoke_arn
-
-  cache_key_parameters = ["method.request.querystring.character_id"]
-  cache_namespace      = "mycache" 
 }
 
 resource "aws_api_gateway_method_response" "proxy" {
