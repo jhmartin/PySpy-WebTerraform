@@ -31,10 +31,6 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   price_class = "PriceClass_100"
 
-  restrictions {
-    restriction_type = "none"
-  }
-
   viewer_certificate {
     cloudfront_default_certificate = true
   }
