@@ -11,4 +11,15 @@ resource "aws_dynamodb_table" "pyspy_intel" {
     name = "character_id"
     type = "N" # 'S' for string, 'N' for number, 'B' for binary
   }
+
+  import_table {
+    import_compression_type = "NONE"
+    import_format           = "csv"
+
+    s3_bucket_source {
+      bucket     = "pyspy-upload"
+      key_prefix = "intel"
+    }
+
+  }
 }
