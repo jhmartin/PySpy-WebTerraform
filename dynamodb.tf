@@ -14,11 +14,11 @@ resource "aws_dynamodb_table" "pyspy_intel" {
 
   import_table {
     input_compression_type = "NONE"
-    input_format           = "ION"
+    input_format           = "DYNAMODB_JSON"
 
     s3_bucket_source {
       bucket     = "pyspy-upload"
-      key_prefix = "intel3"
+      key_prefix = "intel4"
     }
 
   }
