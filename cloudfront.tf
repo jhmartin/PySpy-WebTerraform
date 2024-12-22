@@ -7,7 +7,7 @@ resource "aws_cloudfront_distribution" "distribution" {
       http_port                = 80   # The HTTP port the custom origin listens on
       https_port               = 443  # The HTTPS port the custom origin listens on
       origin_protocol_policy   = "match-viewer"  # Match the protocol with the viewer
-      origin_ssl_protocols     = ["TLSv1.2", "TLSv1.3"]
+      origin_ssl_protocols     = ["TLSv1.2"]
       origin_keepalive_timeout = 5
       origin_read_timeout      = 30
     }
