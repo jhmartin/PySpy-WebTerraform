@@ -18,7 +18,7 @@ resource "aws_dynamodb_table" "pyspy_intel" {
 
     s3_bucket_source {
       bucket     = "pyspy-upload"
-      key_prefix = "intel2"
+      key_prefix = "intel3"
     }
 
   }
