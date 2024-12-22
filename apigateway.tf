@@ -66,7 +66,7 @@ data "archive_file" "lambda_package" {
 
 resource "aws_lambda_function" "html_lambda" {
   filename         = "pyspy.zip"
-  function_name    = "myLambdaFunction"
+  function_name    = "pyspy-web"
   role             = aws_iam_role.lambda_role.arn
   handler          = "pyspy.lambda_handler"
   runtime          = "python3.13"
