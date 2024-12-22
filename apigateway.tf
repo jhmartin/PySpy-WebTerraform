@@ -3,7 +3,7 @@ resource "aws_api_gateway_rest_api" "pyspy" {
   description = "API Gateway to trigger the pyspy lambda"
 
   endpoint_configuration {
-    types = ["REGIONAL"]
+    types = ["EDGE"]
   }
 
 }
@@ -56,6 +56,12 @@ resource "aws_api_gateway_deployment" "deployment" {
 
   rest_api_id = aws_api_gateway_rest_api.pyspy.id
   stage_name  = "stg" # replace with aws_api_gateway_stage
+}
+
+resource "aws_api_gateway_stage" "devstage" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.pyspy.id
+  stage_name    = "dev"
 }
 
 data "archive_file" "lambda_package" {
