@@ -1,6 +1,6 @@
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
-    domain_name = regex("^https?://([^/:]+)", aws_api_gateway_stage.devstage.invoke_url)
+    domain_name = element(regex(aws_api_gateway_stage.devstage.invoke_url, "^https?://([^/:]+)"),0)
     origin_id   = "apigateway"
   }
 
