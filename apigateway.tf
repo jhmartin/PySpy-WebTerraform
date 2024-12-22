@@ -78,8 +78,8 @@ data "aws_iam_policy" "pb" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name                = "lambda-role"
-  permission_boundary = data.aws_iam_policy.pb.arn
+  name                 = "lambda-role"
+  permissions_boundary = data.aws_iam_policy.pb.arn
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
