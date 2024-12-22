@@ -1,6 +1,6 @@
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
-    domain_name = regex("//(.*?)/", aws_api_gateway_stage.devstage.invoke_url)
+    domain_name = element(regex(aws_api_gateway_stage.devstage.invoke_url, "//(.*?)/),0)
     origin_id   = "apigateway"
   }
 
@@ -32,6 +32,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   price_class = "PriceClass_100"
 
   restrictions {
+    restriction_type = "none"
   }
 
   viewer_certificate {
