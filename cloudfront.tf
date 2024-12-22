@@ -52,7 +52,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 }
 
 resource "aws_cloudfront_cache_policy" "pyspy" {
-  name        = "API"
+  name        = "PyApi-Cache"
   comment     = "Just allow relevent values"
   default_ttl = 5
   max_ttl     = 10
@@ -70,6 +70,23 @@ resource "aws_cloudfront_cache_policy" "pyspy" {
       query_strings {
         items = ["character_id"]
       }
+    }
+  }
+}
+
+resource "aws_cloudfront_origin_request_policy" "pyspy" {
+  name    = "PyApi-Cache"
+  comment = "Just allow relevant values"
+  cookies_config {
+    cookie_behavior = "none"
+  }
+  headers_config {
+    header_behavior = "none"
+  }
+  query_strings_config {
+    query_string_behavior = "whitelist"
+    query_strings {
+      items = ["character_id"]
     }
   }
 }
