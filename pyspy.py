@@ -1,32 +1,33 @@
 import boto3
 import json
+import decimal
+
+# Initialize a boto3 client for DynamoDB
+dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('pyspy-intel')
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return int(o)
+        return super().default(o)
 
 def lambda_handler(event, context):
-    # Extract the character_id from the event that triggered the lambda
-    character_id = event['character_id']
-    
-    # Initialize a boto3 client for DynamoDB
-    dynamodb = boto3.resource('dynamodb')
-    
-    # Specify the DynamoDB table
-    table = dynamodb.Table('pyspy-intel')
+    character_id = event['queryStringParameters']['character_id']
     
     # Fetch the item from DynamoDB
     response = table.get_item(
         Key={
-            'character_id': character_id
+            'character_id': int(character_id)
         }
-    )
+     )
     
-    # Extract the item from the response
     item = response.get('Item', {})
     
-    # Return the item as JSON
     return {
         'statusCode': 200,
-        'body': json.dumps(item),
+        'body': json.dumps(item, cls=DecimalEncoder),
         'headers': {
             'Content-Type': 'application/json'
         },
-    }
-
+     }

@@ -14,7 +14,7 @@ resource "aws_dynamodb_table" "pyspy_intel" {
 
   import_table {
     input_compression_type = "NONE"
-    input_format           = "CSV"
+    input_format           = "ION"
 
     s3_bucket_source {
       bucket     = "pyspy-upload"
