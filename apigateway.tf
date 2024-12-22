@@ -78,7 +78,7 @@ data "aws_iam_policy" "pb" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name                 = "lambda-role"
+  name                 = "pyspy-lambda-role"
   permissions_boundary = data.aws_iam_policy.pb.arn
 
   assume_role_policy = jsonencode({
