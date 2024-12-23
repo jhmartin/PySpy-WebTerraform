@@ -21,11 +21,10 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
   }
 
-  enabled             = true
-  is_ipv6_enabled     = true
-  comment             = "PySpy"
-  acm_certificate_arn = data.aws_acm_certificate.pyspy.arn
-  http_version        = "http2and3"
+  enabled         = true
+  is_ipv6_enabled = true
+  comment         = "PySpy"
+  http_version    = "http2and3"
 
   aliases = ["pyspy.toger.us"]
 
@@ -44,7 +43,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   price_class = "PriceClass_100"
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = data.aws_acm_certificate.pyspy.arn
   }
 
   restrictions {
