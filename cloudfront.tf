@@ -1,3 +1,11 @@
+# Find a certificate that is issued
+data "aws_acm_certificate" "pyspy" {
+  domain      = "pyspy.toger.us"
+  types       = ["AMAZON_ISSUED"]
+  most_recent = true
+  statuses    = ["ISSUED"]
+}
+
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
     domain_name = element(regex("^https?://([^/:]+)", aws_api_gateway_stage.devstage.invoke_url), 0)
@@ -13,24 +21,19 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
   }
 
-  enabled         = true
-  is_ipv6_enabled = true
-  comment         = "PySpy"
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "PySpy"
+  acm_certificate_arn = data.aws_acm_certificate.pyspy.arn
+  http_version        = "http2and3"
 
-  #  aliases = ["pyspy.toger.us"]
+  aliases = ["pyspy.toger.us"]
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "apigateway"
-
-    forwarded_values {
-      query_string = true
-
-      cookies {
-        forward = "none"
-      }
-    }
+    cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
+    origin_request_policy_id = aws.cloudfront_origin_request_policy.pyspy.id
+    allowed_methods          = ["GET", "HEAD"]
+    target_origin_id         = "apigateway"
 
     viewer_protocol_policy = "allow-all"
     min_ttl                = 0
