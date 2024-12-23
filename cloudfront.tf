@@ -5,7 +5,7 @@ data "aws_acm_certificate" "pyspy" {
   most_recent = true
   statuses    = ["ISSUED"]
 
-  provider = "aws.ue1"
+  provider = aws.ue1
 }
 
 resource "aws_cloudfront_distribution" "distribution" {
