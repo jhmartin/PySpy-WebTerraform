@@ -76,10 +76,10 @@ resource "aws_api_gateway_deployment" "deployment" {
   }
 }
 
-resource "aws_api_gateway_stage" "devstage" {
+resource "aws_api_gateway_stage" "prodstage" {
   deployment_id = aws_api_gateway_deployment.deployment.id
   rest_api_id   = aws_api_gateway_rest_api.pyspy.id
-  stage_name    = "dev"
+  stage_name    = "v2"
 }
 
 data "archive_file" "lambda_package" {
@@ -145,8 +145,4 @@ resource "aws_lambda_permission" "apigw_lambda" {
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.pyspy.execution_arn}/*/*/*"
-}
-
-output "dev_invoke_url" {
-  value = aws_api_gateway_stage.devstage.invoke_url
 }
