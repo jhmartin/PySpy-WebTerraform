@@ -67,7 +67,6 @@ data "archive_file" "lambda_package" {
   type             = "zip"
   source_file      = "pyspy.py"
   output_path      = "pyspy.zip"
-  source_code_hash = data.archive_file.lambda_package.output_base64sha256
 }
 
 resource "aws_lambda_function" "html_lambda" {
