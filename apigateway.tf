@@ -69,9 +69,9 @@ resource "aws_api_gateway_deployment" "deployment" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.pyspy.id,
-      aws_api_gateway_method.proxy.id,
-      aws_api_gateway_integration.lambda_integration.id,
+      aws_api_gateway_resource.pyspy,
+      aws_api_gateway_method.proxy,
+      aws_api_gateway_integration.lambda_integration
     ]))
   }
 }
