@@ -38,9 +38,6 @@ resource "aws_cloudfront_distribution" "distribution" {
     target_origin_id         = "apigateway"
 
     viewer_protocol_policy = "allow-all"
-    min_ttl                = 0
-    default_ttl            = 5
-    max_ttl                = 5
   }
 
   price_class = "PriceClass_100"
