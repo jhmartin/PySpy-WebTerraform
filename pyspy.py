@@ -2,9 +2,6 @@ import boto3
 import json
 import decimal
 
-# Initialize a boto3 client for DynamoDB
-dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('pyspy-intel')
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, o):
@@ -13,6 +10,9 @@ class DecimalEncoder(json.JSONEncoder):
         return super().default(o)
 
 def lambda_handler(event, context):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('pyspy-intel')
+
     character_id = event['queryStringParameters']['character_id']
     
     # Fetch the item from DynamoDB
