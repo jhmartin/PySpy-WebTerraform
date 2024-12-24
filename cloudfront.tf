@@ -40,7 +40,6 @@ resource "aws_cloudfront_distribution" "distribution" {
   aliases = ["pyspy.toger.us"]
 
   default_cache_behavior {
-    path_pattern             = "static/"
     cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
     origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
     allowed_methods          = ["GET", "HEAD"]
@@ -51,6 +50,7 @@ resource "aws_cloudfront_distribution" "distribution" {
   }
 
 #  ordered_cache_behavior {
+#     path_pattern             = "static/"
 #    cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
 #    origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
 #    allowed_methods          = ["GET", "HEAD"]
