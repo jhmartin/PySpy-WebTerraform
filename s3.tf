@@ -14,7 +14,7 @@ resource "aws_cloudfront_origin_access_control" "oac" {
 }
 
 resource "aws_s3_bucket_policy" "cloudfront" {
-  bucket = aws_s3_bucket.main.id
+  bucket = aws_s3_bucket.pyspy_static.id
   policy = data.aws_iam_policy_document.cloudfront_oac_access.json
 }
 
