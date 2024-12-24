@@ -50,15 +50,15 @@ resource "aws_cloudfront_distribution" "distribution" {
     viewer_protocol_policy = "allow-all"
   }
 
-  ordered_cache_behavior {
-    cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
-    allowed_methods          = ["GET", "HEAD"]
-    cached_methods           = ["GET", "HEAD"]
-    target_origin_id         = "apigateway"
-
-    viewer_protocol_policy = "allow-all"
-  }
+#  ordered_cache_behavior {
+#    cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
+#    origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
+#    allowed_methods          = ["GET", "HEAD"]
+#    cached_methods           = ["GET", "HEAD"]
+#    target_origin_id         = "apigateway"
+#
+#    viewer_protocol_policy = "allow-all"
+#  }
 
 
   price_class = "PriceClass_100"
