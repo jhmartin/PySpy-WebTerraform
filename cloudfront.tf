@@ -10,7 +10,7 @@ data "aws_acm_certificate" "pyspy" {
 
 resource "aws_cloudfront_distribution" "distribution" {
   origin {
-    domain_name = element(regex("^https?://([^/:]+)", aws_api_gateway_stage.devstage.invoke_url), 0)
+    domain_name = element(regex("^https?://([^/:]+)", aws_api_gateway_stage.prodstage.invoke_url), 0)
     origin_id   = "apigateway"
 
     custom_origin_config {
