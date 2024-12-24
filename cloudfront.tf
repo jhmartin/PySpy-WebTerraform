@@ -41,7 +41,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
     allowed_methods          = ["GET", "HEAD"]
     cached_methods           = ["GET", "HEAD"]
-    target_origin_id         = "static"
+    target_origin_id         = "apigateway"
 
     viewer_protocol_policy = "allow-all"
   }
@@ -52,7 +52,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
     allowed_methods          = ["GET", "HEAD"]
     cached_methods           = ["GET", "HEAD"]
-    target_origin_id         = "apigateway"
+    target_origin_id         = "static"
 
     viewer_protocol_policy = "allow-all"
   }
