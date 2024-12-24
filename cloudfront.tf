@@ -23,6 +23,15 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
   }
 
+  origin {
+    domain_name = aws_s3_bucket.pyspy_static.bucket_regional_domain_name
+    origin_id   = "static"
+
+    s3_origin_config {
+      origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
+    }
+  }
+
   enabled         = true
   is_ipv6_enabled = true
   comment         = "PySpy"
@@ -31,6 +40,17 @@ resource "aws_cloudfront_distribution" "distribution" {
   aliases = ["pyspy.toger.us"]
 
   default_cache_behavior {
+    path_pattern             = "static/"
+    cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = "static"
+
+    viewer_protocol_policy = "allow-all"
+  }
+
+  ordered_cache_behavior {
     cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
     origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
     allowed_methods          = ["GET", "HEAD"]
@@ -39,6 +59,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     viewer_protocol_policy = "allow-all"
   }
+
 
   price_class = "PriceClass_100"
 
