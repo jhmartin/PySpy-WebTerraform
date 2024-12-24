@@ -25,11 +25,8 @@ resource "aws_cloudfront_distribution" "distribution" {
 
   origin {
     domain_name = aws_s3_bucket.pyspy_static.bucket_regional_domain_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
     origin_id   = "static"
-
-    s3_origin_config {
-      origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
-    }
   }
 
   enabled         = true
