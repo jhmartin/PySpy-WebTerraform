@@ -38,8 +38,8 @@ resource "aws_cloudfront_distribution" "distribution" {
 
 
   default_cache_behavior {
-    cache_policy_id          = aws_cloudfront_cache_policy.pyspy.id
-    origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy.id
+    cache_policy_id          = aws_cloudfront_cache_policy.s3.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.s3.id
     allowed_methods          = ["GET", "HEAD"]
     cached_methods           = ["GET", "HEAD"]
     target_origin_id         = "static"
