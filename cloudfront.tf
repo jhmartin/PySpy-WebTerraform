@@ -69,6 +69,11 @@ resource "aws_cloudfront_distribution" "distribution" {
       restriction_type = "none"
     }
   }
+
+  logging_config {
+    include_cookies = false
+    bucket          = aws_s3_bucket.cloudfront_logging.bucket_domain_name
+  }
 }
 
 resource "aws_cloudfront_cache_policy" "pyspy" {

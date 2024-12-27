@@ -1,53 +1,49 @@
+data "aws_canonical_user_id" "current" {}
+data "aws_cloudfront_log_delivery_canonical_user_id" "cf" {}
+
+
 resource "aws_s3_bucket" "cloudfront_logging" {
   bucket_prefix = "pyspy-cf"
-  provider      = aws.ue1
 }
 
-resource "aws_s3_bucket_policy" "cloudfrontlogging" {
+resource "aws_s3_bucket_ownership_controls" "cloudfront_logging" {
   bucket = aws_s3_bucket.cloudfront_logging.id
-  policy = data.aws_iam_policy_document.cloudfront_logging.json
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
-data "aws_iam_policy_document" "cloudfront_logging" {
-  statement {
-    principals {
-      type        = "Service"
-      identifiers = ["delivery.logs.amazonaws.com"]
+resource "aws_s3_bucket_acl" "cloudfront_logging" {
+  bucket = aws_s3_bucket.cloudfront_logging.id
+
+  access_control_policy {
+    grant {
+      grantee {
+        id   = data.aws_cloudfront_log_delivery_canonical_user_id.cf.id
+        type = "CanonicalUser"
+      }
+      permission = "FULL_CONTROL"
     }
-
-    actions = [
-      "s3:GetBucketAcl"
-    ]
-
-    resources = [
-      aws_s3_bucket.cloudfront_logging.arn
-    ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "AWS:SourceAccount"
-      values   = [data.aws_caller_identity.current.account_id]
-    }
-    condition {
-      test     = "ArnLike"
-      variable = "AWS:SourceArn"
-      values   = ["arn:aws:logs:us-east-1:${data.aws_caller_identity.current.account_id}:delivery-source*"]
+    owner {
+      id = data.aws_canonical_user_id.current.id
     }
   }
+  depends_on = [aws_s3_bucket_ownership_controls.cloudfront_logging]
+}
 
-  statement {
-    principals {
-      type        = "Service"
-      identifiers = ["delivery.logs.amazonaws.com"]
+resource "aws_s3_bucket_lifecycle_configuration" "cloudfront_expiration" {
+  bucket = aws_s3_bucket.cloudfront_logging.id
+
+  rule {
+    id = "Expiration"
+
+    filter {}
+
+    status = "Enabled"
+
+    expiration {
+      days = 30
     }
 
-    actions = ["s3:PutObject"]
-
-    resources = ["${aws_s3_bucket.cloudfront_logging.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"]
-    condition {
-      test     = "ArnLike"
-      variable = "AWS:SourceArn"
-      values   = ["arn:aws:logs:*:${data.aws_caller_identity.current.account_id}:*"]
-    }
   }
 }
