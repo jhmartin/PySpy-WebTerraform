@@ -15,10 +15,16 @@ terraform {
 provider "aws" {
   shared_config_files = [var.tfc_aws_dynamic_credentials.default.shared_config_file]
   region              = "us-west-2"
+  tags = {
+    Project = "PySpy"
+  }
 }
 
 provider "aws" {
   alias               = "ue1"
   shared_config_files = [var.tfc_aws_dynamic_credentials.default.shared_config_file]
   region              = "us-east-1"
+  tags = {
+    Project = "PySpy"
+  }
 }
