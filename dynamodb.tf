@@ -7,6 +7,11 @@ resource "aws_dynamodb_table" "pyspy_intel" {
   write_capacity = 20
   hash_key       = "character_id" # Specify your table's hash key
 
+  point_in_time_recovery {
+    # Table is <1GB so this is not that expensive
+    enabled = true
+  }
+
   attribute {
     name = "character_id"
     type = "N" # 'S' for string, 'N' for number, 'B' for binary
