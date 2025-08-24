@@ -19,14 +19,24 @@ resource "aws_s3_bucket_acl" "cloudfront_logging" {
   access_control_policy {
     grant {
       grantee {
+        id   = data.aws_canonical_user_id.current.id
+        type = "CanonicalUser"
+      }
+      permission = "FULL_CONTROL"
+    }
+
+    grant {
+      grantee {
         id   = data.aws_cloudfront_log_delivery_canonical_user_id.cf.id
         type = "CanonicalUser"
       }
       permission = "FULL_CONTROL"
     }
+
     owner {
       id = data.aws_canonical_user_id.current.id
     }
+
   }
   depends_on = [aws_s3_bucket_ownership_controls.cloudfront_logging]
 }
