@@ -14,7 +14,7 @@ terraform {
 
 provider "aws" {
   shared_config_files = [var.tfc_aws_dynamic_credentials.default.shared_config_file]
-  region              = "us-west-2"
+  region              = var.region
   default_tags {
     tags = {
       Project = "PySpy"
