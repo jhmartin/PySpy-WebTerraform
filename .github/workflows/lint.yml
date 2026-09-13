@@ -1,0 +1,20 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: pip install pylint autopep8 boto3
+      - name: Run pylint
+        run: pylint pyspy.py pyspy3.py
+      - name: Check autopep8 formatting
+        run: autopep8 --diff --exit-code pyspy.py pyspy3.py
