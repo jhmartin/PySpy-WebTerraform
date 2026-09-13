@@ -34,8 +34,7 @@ resource "aws_dynamodb_table" "pyspyv3_intel" {
   billing_mode   = "PROVISIONED"
   read_capacity  = 5
   write_capacity = 5
-  hash_key       = "name"         # Specify your table's hash key
-  range_key      = "character_id" # Specify your table's sort key
+  hash_key       = "name" # Specify your table's hash key
 
   point_in_time_recovery {
     # Table is <1GB so this is not that expensive
@@ -45,11 +44,6 @@ resource "aws_dynamodb_table" "pyspyv3_intel" {
   attribute {
     name = "name"
     type = "S" # 'S' for string, 'N' for number, 'B' for binary
-  }
-
-  attribute {
-    name = "character_id"
-    type = "N" # 'S' for string, 'N' for number, 'B' for binary
   }
 
   import_table {
