@@ -3,8 +3,8 @@
 resource "aws_dynamodb_table" "pyspy_intel" {
   name           = "pyspy-intel" # Set the name of your DynamoDB table
   billing_mode   = "PROVISIONED"
-  read_capacity  = 20
-  write_capacity = 20
+  read_capacity  = 10
+  write_capacity = 10
   hash_key       = "character_id" # Specify your table's hash key
 
   point_in_time_recovery {
@@ -32,8 +32,8 @@ resource "aws_dynamodb_table" "pyspy_intel" {
 resource "aws_dynamodb_table" "pyspyv3_intel" {
   name           = "pyspyv3-intel" # Set the name of your DynamoDB table
   billing_mode   = "PROVISIONED"
-  read_capacity  = 5
-  write_capacity = 5
+  read_capacity  = 10
+  write_capacity = 10
   hash_key       = "name" # Specify your table's hash key
 
   point_in_time_recovery {
