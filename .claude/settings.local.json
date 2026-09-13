@@ -10,7 +10,8 @@
       "Bash(python -m pylint pyspy.py pyspy3.py)",
       "Bash(python -m autopep8 --diff --exit-code pyspy.py pyspy3.py)",
       "Bash(echo \"exit=$?\")",
-      "Bash(echo \"autopep8 exit=$?\")"
+      "Bash(echo \"autopep8 exit=$?\")",
+      "Bash(terraform fmt:*)"
     ]
   }
 }
