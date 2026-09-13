@@ -1,14 +1,18 @@
-"""AWS Lambda handler that looks up EVE Online character intel from DynamoDB."""
+"""AWS Lambda handler that looks up EVE Online character intel from DynamoDB by name."""
+# pylint: disable=duplicate-code
 
 import json
 import decimal
 import os
+import re
 import time
 import boto3
 from botocore.exceptions import ClientError
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(os.environ['table'])
+
+NAME_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9\-' ]*[A-Za-z0-9]$")
 
 # This API is only meant to be consumed by a Python client, so these headers
 # discourage browsers from rendering or embedding the response.
@@ -81,29 +85,51 @@ def bad_request(reason: str) -> dict:
     }
 
 
+def validate_name(name: str) -> str:
+    """Validate an EVE Online character name.
+
+    Returns an error reason if the name is invalid, or an empty string if
+    the name is valid.
+    """
+    if len(name) < 3:
+        return 'Name must be at least 3 characters'
+    if len(name) > 37:
+        return 'Name cannot exceed 37 characters'
+    if not NAME_PATTERN.fullmatch(name):
+        return 'Name contains invalid characters'
+
+    parts = name.rsplit(' ', 1)
+    given_name = parts[0]
+    family_name = parts[1] if len(parts) > 1 else ''
+
+    if len(given_name) > 24:
+        return 'Name cannot exceed 24 characters'
+    if len(family_name) > 12:
+        return 'Family name cannot exceed 12 characters'
+
+    return ''
+
+
 def lambda_handler(event, _):
-    """Look up a character's intel record in DynamoDB by character_id."""
+    """Look up a character's intel record in DynamoDB by name."""
     # Ensure we got the correct parameters
     query_params = event.get('queryStringParameters') or {}
-    if 'character_id' not in query_params:
-        return bad_request('Missing character_id')
-    character_id = query_params['character_id']
+    if 'name' not in query_params:
+        return bad_request('Missing name')
+    name = query_params['name']
 
-    # Check that the parameter is a positive intger
-    if not character_id.isdigit():
-        return bad_request('Non-numeric character id')
+    # Check that the parameter is a valid character name
+    invalid_reason = validate_name(name)
+    if invalid_reason:
+        return bad_request(invalid_reason)
 
-    # Check that the parameter is within sane ranges for character_ids
-    if int(character_id) < 90000000 or int(character_id) > 10000000000:
-        return bad_request('Character_id out of range')
-
-    cached_response = get_cached_response(character_id)
+    cached_response = get_cached_response(name)
     if cached_response is not None:
         return cached_response
 
     # Fetch the item from DynamoDB
     try:
-        response = table.get_item(Key={'character_id': int(character_id)})
+        response = table.get_item(Key={'name': name})
     except ClientError as err:
         if err.response['Error']['Code'] not in [
                 "ProvisionedThroughputExceededException"]:
@@ -116,7 +142,7 @@ def lambda_handler(event, _):
                 },
                 }
 
-    result = {'character_id': int(character_id)}
+    result = {'name': name}
     item = response.get('Item', {})
     item = item | result
 
@@ -128,5 +154,5 @@ def lambda_handler(event, _):
             'Content-Type': 'application/json',
         },
     }
-    set_cached_response(character_id, response_payload)
+    set_cached_response(name, response_payload)
     return response_payload

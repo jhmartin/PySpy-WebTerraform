@@ -22,8 +22,43 @@ resource "aws_dynamodb_table" "pyspy_intel" {
     input_format           = "DYNAMODB_JSON"
 
     s3_bucket_source {
-      bucket     = "pyspy-upload"
-      key_prefix = "intel4"
+      bucket     = var.pyspy_intel_source_bucket
+      key_prefix = var.pyspy_intel_key_prefix
+    }
+
+  }
+}
+
+resource "aws_dynamodb_table" "pyspyv3_intel" {
+  name           = "pyspyv3-intel" # Set the name of your DynamoDB table
+  billing_mode   = "PROVISIONED"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "name"         # Specify your table's hash key
+  range_key      = "character_id" # Specify your table's sort key
+
+  point_in_time_recovery {
+    # Table is <1GB so this is not that expensive
+    enabled = true
+  }
+
+  attribute {
+    name = "name"
+    type = "S" # 'S' for string, 'N' for number, 'B' for binary
+  }
+
+  attribute {
+    name = "character_id"
+    type = "N" # 'S' for string, 'N' for number, 'B' for binary
+  }
+
+  import_table {
+    input_compression_type = "NONE"
+    input_format           = "DYNAMODB_JSON"
+
+    s3_bucket_source {
+      bucket     = var.pyspy_intel_source_bucket
+      key_prefix = var.pyspyv3_intel_key_prefix
     }
 
   }

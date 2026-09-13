@@ -56,6 +56,16 @@ resource "aws_cloudfront_distribution" "distribution" {
     viewer_protocol_policy   = "https-only"
   }
 
+  ordered_cache_behavior {
+    path_pattern             = "/v3/*"
+    cache_policy_id          = aws_cloudfront_cache_policy.pyspy3.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.pyspy3.id
+    allowed_methods          = ["GET", "HEAD"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = "apigateway"
+    viewer_protocol_policy   = "https-only"
+  }
+
   price_class = "PriceClass_100"
 
   viewer_certificate {
@@ -81,8 +91,8 @@ resource "aws_cloudfront_cache_policy" "pyspy" {
   name        = "PyApi-Cache"
   comment     = "Just allow relevent values"
   default_ttl = 86400
-  max_ttl     = 86400
-  min_ttl     = 86400
+  max_ttl     = 31536000
+  min_ttl     = 0
   parameters_in_cache_key_and_forwarded_to_origin {
 
     cookies_config {
@@ -95,6 +105,30 @@ resource "aws_cloudfront_cache_policy" "pyspy" {
       query_string_behavior = "whitelist"
       query_strings {
         items = ["character_id"]
+      }
+    }
+  }
+}
+
+
+resource "aws_cloudfront_cache_policy" "pyspy3" {
+  name        = "PySpy3Api-Cache"
+  comment     = "Just allow relevent values"
+  default_ttl = 86400
+  max_ttl     = 31536000
+  min_ttl     = 0
+  parameters_in_cache_key_and_forwarded_to_origin {
+
+    cookies_config {
+      cookie_behavior = "none"
+    }
+    headers_config {
+      header_behavior = "none"
+    }
+    query_strings_config {
+      query_string_behavior = "whitelist"
+      query_strings {
+        items = ["name"]
       }
     }
   }
@@ -134,6 +168,23 @@ resource "aws_cloudfront_origin_request_policy" "pyspy" {
     query_string_behavior = "whitelist"
     query_strings {
       items = ["character_id"]
+    }
+  }
+}
+
+resource "aws_cloudfront_origin_request_policy" "pyspy3" {
+  name    = "PySpy3Api-Cache"
+  comment = "Just allow relevant values"
+  cookies_config {
+    cookie_behavior = "none"
+  }
+  headers_config {
+    header_behavior = "none"
+  }
+  query_strings_config {
+    query_string_behavior = "whitelist"
+    query_strings {
+      items = ["name"]
     }
   }
 }

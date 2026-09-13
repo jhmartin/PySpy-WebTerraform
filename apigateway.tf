@@ -49,9 +49,51 @@ resource "aws_api_gateway_integration_response" "proxy" {
   ]
 }
 
+resource "aws_api_gateway_resource" "pyspy3" {
+  rest_api_id = aws_api_gateway_rest_api.pyspy.id
+  parent_id   = aws_api_gateway_rest_api.pyspy.root_resource_id
+  path_part   = "name_intel"
+}
+
+resource "aws_api_gateway_method" "pyspy3_proxy" {
+  rest_api_id   = aws_api_gateway_rest_api.pyspy.id
+  resource_id   = aws_api_gateway_resource.pyspy3.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "pyspy3_lambda_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.pyspy.id
+  resource_id             = aws_api_gateway_resource.pyspy3.id
+  http_method             = aws_api_gateway_method.pyspy3_proxy.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.pyspy3_lambda.invoke_arn
+}
+
+resource "aws_api_gateway_method_response" "pyspy3_proxy" {
+  rest_api_id = aws_api_gateway_rest_api.pyspy.id
+  resource_id = aws_api_gateway_resource.pyspy3.id
+  http_method = aws_api_gateway_method.pyspy3_proxy.http_method
+  status_code = "200"
+}
+
+resource "aws_api_gateway_integration_response" "pyspy3_proxy" {
+  rest_api_id = aws_api_gateway_rest_api.pyspy.id
+  resource_id = aws_api_gateway_resource.pyspy3.id
+  http_method = aws_api_gateway_method.pyspy3_proxy.http_method
+  status_code = aws_api_gateway_method_response.pyspy3_proxy.status_code
+
+  depends_on = [
+    aws_api_gateway_method.pyspy3_proxy,
+    aws_api_gateway_integration.pyspy3_lambda_integration
+  ]
+}
+
 resource "aws_api_gateway_deployment" "deployment" {
   depends_on = [
-    aws_api_gateway_integration.lambda_integration
+    aws_api_gateway_integration.lambda_integration,
+    aws_api_gateway_integration.pyspy3_lambda_integration
   ]
 
   rest_api_id = aws_api_gateway_rest_api.pyspy.id
@@ -71,7 +113,10 @@ resource "aws_api_gateway_deployment" "deployment" {
     redeployment = sha1(jsonencode([
       aws_api_gateway_resource.pyspy,
       aws_api_gateway_method.proxy,
-      aws_api_gateway_integration.lambda_integration
+      aws_api_gateway_integration.lambda_integration,
+      aws_api_gateway_resource.pyspy3,
+      aws_api_gateway_method.pyspy3_proxy,
+      aws_api_gateway_integration.pyspy3_lambda_integration
     ]))
   }
 }
@@ -80,6 +125,12 @@ resource "aws_api_gateway_stage" "prodstage" {
   deployment_id = aws_api_gateway_deployment.deployment.id
   rest_api_id   = aws_api_gateway_rest_api.pyspy.id
   stage_name    = "v2"
+}
+
+resource "aws_api_gateway_stage" "pyspy3stage" {
+  deployment_id = aws_api_gateway_deployment.deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.pyspy.id
+  stage_name    = "v3"
 }
 
 data "archive_file" "lambda_package" {
@@ -99,7 +150,30 @@ resource "aws_lambda_function" "html_lambda" {
 
   environment {
     variables = {
-      table = aws_dynamodb_table.pyspy_intel.id
+      table         = aws_dynamodb_table.pyspy_intel.id
+      cache_enabled = "true"
+    }
+  }
+}
+
+data "archive_file" "pyspy3_lambda_package" {
+  type        = "zip"
+  source_file = "pyspy3.py"
+  output_path = "pyspy3.zip"
+}
+
+resource "aws_lambda_function" "pyspy3_lambda" {
+  filename         = "pyspy3.zip"
+  function_name    = "pyspy3-web"
+  role             = aws_iam_role.pyspy3_lambda_role.arn
+  handler          = "pyspy3.lambda_handler"
+  runtime          = "python3.13"
+  source_code_hash = data.archive_file.pyspy3_lambda_package.output_base64sha256
+
+  environment {
+    variables = {
+      table         = aws_dynamodb_table.pyspyv3_intel.id
+      cache_enabled = "true"
     }
   }
 }
@@ -110,6 +184,13 @@ data "aws_iam_policy" "pb" {
 
 resource "aws_iam_role" "lambda_role" {
   name                 = "pyspy-lambda-role"
+  permissions_boundary = data.aws_iam_policy.pb.arn
+
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
+resource "aws_iam_role" "pyspy3_lambda_role" {
+  name                 = "pyspy3-lambda-role"
   permissions_boundary = data.aws_iam_policy.pb.arn
 
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
@@ -133,9 +214,37 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   role       = aws_iam_role.lambda_role.name
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_ddb" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
-  role       = aws_iam_role.lambda_role.name
+resource "aws_iam_role_policy_attachment" "pyspy3_lambda_basic" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  role       = aws_iam_role.pyspy3_lambda_role.name
+}
+
+data "aws_iam_policy_document" "pyspy_dynamodb" {
+  statement {
+    effect    = "Allow"
+    actions   = ["dynamodb:GetItem"]
+    resources = [aws_dynamodb_table.pyspy_intel.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "pyspy_dynamodb" {
+  name   = "pyspy-dynamodb-getitem"
+  role   = aws_iam_role.lambda_role.id
+  policy = data.aws_iam_policy_document.pyspy_dynamodb.json
+}
+
+data "aws_iam_policy_document" "pyspy3_dynamodb" {
+  statement {
+    effect    = "Allow"
+    actions   = ["dynamodb:GetItem"]
+    resources = [aws_dynamodb_table.pyspyv3_intel.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "pyspy3_dynamodb" {
+  name   = "pyspy3-dynamodb-getitem"
+  role   = aws_iam_role.pyspy3_lambda_role.id
+  policy = data.aws_iam_policy_document.pyspy3_dynamodb.json
 }
 
 resource "aws_lambda_permission" "apigw_lambda" {
@@ -145,4 +254,13 @@ resource "aws_lambda_permission" "apigw_lambda" {
   principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.pyspy.execution_arn}/*/*/*"
+}
+
+resource "aws_lambda_permission" "apigw_pyspy3_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.pyspy3_lambda.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.pyspy.execution_arn}/${aws_api_gateway_stage.pyspy3stage.stage_name}/${aws_api_gateway_method.pyspy3_proxy.http_method}${aws_api_gateway_resource.pyspy3.path}"
 }

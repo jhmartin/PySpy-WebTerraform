@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(terraform version:*)",
+      "Bash(curl -s https://registry.terraform.io/v1/providers/hashicorp/aws/versions)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); vs=[v[''''version''''] for v in d[''''versions'''']]; print\\(sorted\\(vs, key=lambda s: [int\\(x\\) for x in s.split\\(''''.''''\\)]\\)[-5:]\\)\")",
+      "Bash(AWS_DEFAULT_REGION=us-west-2 python -c \":*)",
+      "Bash(terraform validate:*)",
+      "Bash(git mv:*)",
+      "Bash(python -m pylint pyspy.py pyspy3.py)",
+      "Bash(python -m autopep8 --diff --exit-code pyspy.py pyspy3.py)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(echo \"autopep8 exit=$?\")"
+    ]
+  }
+}
