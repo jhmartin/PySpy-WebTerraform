@@ -1,7 +1,7 @@
 # IAM user Databricks uses to write intel records into the pyspyv3-intel table.
 
 resource "aws_iam_user" "databricks_pyspyv3" {
-  name                 = "databricks-pyspyv3-writer"
+  name                 = "pyspy3-databricks-writer"
   permissions_boundary = data.aws_iam_policy.pb.arn
 }
 
@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "databricks_pyspyv3_dynamodb" {
 }
 
 resource "aws_iam_user_policy" "databricks_pyspyv3_dynamodb" {
-  name   = "databricks-pyspyv3-dynamodb-write"
+  name   = "pyspyv3-databricks-dynamodb-write"
   user   = aws_iam_user.databricks_pyspyv3.name
   policy = data.aws_iam_policy_document.databricks_pyspyv3_dynamodb.json
 }
